@@ -222,33 +222,33 @@ def eval_custom_spline(xi, x_n, y_n, h_n, M_n):
 
 # ВИВІД
 
-print("--- ЗАГАЛЬНА ІНФОРМАЦІЯ ---")
+print(" ЗАГАЛЬНА ІНФОРМАЦІЯ ")
 print("Кількість точок (вузлів):", n)
 print("Загальна відстань маршруту:", round(x[-1], 2), "метрів")
 print("Сумарний підйом:", round(total_ascent, 1), "м")
 print("Сумарний спуск:", round(total_descent, 1), "м")
 print("")
 
-print("--- ТАБЛИЦЯ КООРДИНАТ ТА ВИСОТ ---")
+print(" ТАБЛИЦЯ КООРДИНАТ ТА ВИСОТ ")
 print("№ | Широта | Довгота | Висота (м)")
 for i in range(len(results)):
     p = results[i]
     # Просто виводимо через кому, без складних відступів
     print(i + 1, "|", p['latitude'], "|", p['longitude'], "|", p['elevation'])
 
-print("\n--- ВІДСТАНЬ І ВИСОТА ---")
+print("\n ВІДСТАНЬ І ВИСОТА ")
 for i in range(n):
     print("Точка", i + 1, ": відстань =", round(x[i], 2), "м, висота =", y[i], "м")
 
-print("\n--- КОЕФІЦІЄНТИ МАТРИЦІ (Метод прогонки) ---")
+print("\n КОЕФІЦІЄНТИ МАТРИЦІ (Метод прогонки)")
 for i in range(n):
     print("Рядок", i, ": A =", round(A[i], 2), "B =", round(B[i], 2), "C =", round(C[i], 2), "D =", round(D[i], 4))
 
-print("\n--- ДРУГІ ПОХІДНІ (M) ---")
+print("\n ДРУГІ ПОХІДНІ (M) ")
 for i in range(len(M)):
     print("M[", i, "] =", round(M[i], 6))
 
-print("\n--- КОЕФІЦІЄНТИ СПЛАЙНІВ ПО СЕГМЕНТАХ ---")
+print("\n КОЕФІЦІЄНТИ СПЛАЙНІВ ПО СЕГМЕНТАХ ")
 for i in range(len(a_coeff)):
     print("Сегмент", i, "(між точками", i, "та", i+1, "):")
     print("  a =", round(a_coeff[i], 3))
@@ -256,13 +256,13 @@ for i in range(len(a_coeff)):
     print("  c =", round(c_coeff[i], 3))
     print("  d =", round(d_coeff[i], 3))
 
-print("\n--- АНАЛІЗ КРУТИЗНИ (ГРАДІЄНТ) ---")
+print("\n АНАЛІЗ КРУТИЗНИ (ГРАДІЄНТ) ")
 # Використаємо простий цикл для перших 10 точок
 for i in range(10):
     g_val = get_grad_spline(x[i])
     print("Вузол", i, ": крутизна =", round(g_val, 4), "%")
 
-print("\n--- ПОРІВНЯННЯ ПОХИБОК ---")
+print("\n ПОРІВНЯННЯ ПОХИБОК ")
 for count in [10, 15, 20]:
     errs, total_err = get_error_stats(count)
     print("Для", count, "вузлів:")
@@ -270,7 +270,7 @@ for count in [10, 15, 20]:
     # Виведемо список похибок просто як масив
     print("  Похибки в точках:", errs)
 
-print("\n--- ФІЗИЧНІ ПОКАЗНИКИ ---")
+print("\nФІЗИЧНІ ПОКАЗНИКИ ")
 print("Максимальний підйом:", round(np.max(grad), 2), "%")
 print("Максимальний спуск:", round(np.min(grad), 2), "%")
 print("Середня крутизна:", round(np.mean(np.abs(grad)), 2), "%")
