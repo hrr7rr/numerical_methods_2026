@@ -191,3 +191,234 @@ plt.ylabel('|N_base(x) - N_n(x)|')
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.legend()
 plt.show()
+
+# ============================================
+# Дослідження впливу кроку
+# Фіксований інтервал [a, b], різна кількість вузлів
+# ============================================
+
+print("\n Дослідження впливу кроку (фіксований інтервал)")
+
+interval_a = min(x_data)
+interval_b = max(x_data)
+
+nodes_variants = [5, 8, 12, 16, 20, 25, 30]
+step_results = []
+
+plt.figure(figsize=(10, 6))
+
+for n in nodes_variants:
+    # Крок
+    h = (interval_b - interval_a) / (n - 1)
+
+    # Рівномірні вузли
+    x_nodes_step = np.linspace(interval_a, interval_b, n)
+    y_nodes_step = np.array([newton_poly(xi, x_data, F) for xi in x_nodes_step])
+
+    # Побудова нового полінома
+    F_step = divided_diff_table(x_nodes_step, y_nodes_step)
+    y_interp_step = np.array([newton_poly(xi, x_nodes_step, F_step) for xi in x_dense])
+
+    # Похибка відносно базової моделі
+    error_step = np.abs(y_base - y_interp_step)
+    max_error_step = np.max(error_step)
+
+    step_results.append((n, h, max_error_step))
+
+    print(f"n = {n:<3} | крок h = {h:<8.3f} | Макс. похибка = {max_error_step:.2e}")
+
+# Побудова графіка залежності похибки від кроку
+steps = [item[1] for item in step_results]
+errors = [item[2] for item in step_results]
+
+plt.plot(steps, errors, marker='o')
+plt.title('Вплив кроку h на максимальну похибку')
+plt.xlabel('Крок h')
+plt.ylabel('Максимальна похибка')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.show()
+
+# ============================================
+# Дослідження впливу кількості вузлів
+# Фіксований крок h, змінний інтервал
+# ============================================
+
+print("\n Дослідження: фіксований крок, змінний інтервал")
+
+h_fixed = (b - a) / 20  # беремо сталий крок (можна задати вручну, напр. 25 або 50)
+print(f"Фіксований крок h = {h_fixed:.3f}")
+
+interval_lengths = []
+nodes_counts = []
+max_errors = []
+
+plt.figure(figsize=(10, 6))
+
+for k in range(5, 21):  # різна кількість вузлів
+    # новий інтервал [a, a + k*h]
+    b_new = a + (k - 1) * h_fixed
+
+    if b_new > b:
+        break
+
+    x_nodes_var = np.arange(a, b_new + h_fixed, h_fixed)
+    y_nodes_var = np.array([newton_poly(xi, x_data, F) for xi in x_nodes_var])
+
+    F_var = divided_diff_table(x_nodes_var, y_nodes_var)
+    x_test = np.linspace(a, b_new, 1000)
+
+    y_interp_var = np.array([newton_poly(xi, x_nodes_var, F_var) for xi in x_test])
+    y_true_var = np.array([newton_poly(xi, x_data, F) for xi in x_test])
+
+    error_var = np.abs(y_true_var - y_interp_var)
+    max_error_var = np.max(error_var)
+
+    interval_length = b_new - a
+    n_nodes = len(x_nodes_var)
+
+    interval_lengths.append(interval_length)
+    nodes_counts.append(n_nodes)
+    max_errors.append(max_error_var)
+
+    print(f"Інтервал: [{a:.1f}, {b_new:.1f}] | "
+          f"Довжина = {interval_length:<8.2f} | "
+          f"Вузлів = {n_nodes:<3} | "
+          f"Макс. похибка = {max_error_var:.2e}")
+
+plt.plot(nodes_counts, max_errors, marker='o')
+plt.title('Вплив кількості вузлів на похибку\n(фіксований крок)')
+plt.xlabel('Кількість вузлів')
+plt.ylabel('Максимальна похибка')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.show()
+
+# ============================================
+# Аналіз ефекту Рунге
+# ============================================
+
+print("\n Аналіз ефекту Рунге")
+
+# Класична функція Рунге
+def runge_function(x):
+    return 1 / (1 + 25 * x**2)
+
+# Інтервал [-1, 1]
+a_runge = -1
+b_runge = 1
+
+x_dense_runge = np.linspace(a_runge, b_runge, 1000)
+y_true_runge = runge_function(x_dense_runge)
+
+nodes_runge_list = [5, 10, 15, 20]
+
+plt.figure(figsize=(18, 5))
+
+for idx, n in enumerate(nodes_runge_list):
+    plt.subplot(1, 4, idx + 1)
+
+    # Рівномірні вузли
+    x_nodes_runge = np.linspace(a_runge, b_runge, n)
+    y_nodes_runge = runge_function(x_nodes_runge)
+
+    # Інтерполяція Ньютона
+    F_runge = divided_diff_table(x_nodes_runge, y_nodes_runge)
+    y_interp_runge = np.array([newton_poly(xi, x_nodes_runge, F_runge)
+                               for xi in x_dense_runge])
+
+    # Похибка
+    error_runge = np.abs(y_true_runge - y_interp_runge)
+    max_error_runge = np.max(error_runge)
+
+    print(f"Вузлів: {n:<2} | Макс. похибка: {max_error_runge:.2e}")
+
+    # Графік
+    plt.plot(x_dense_runge, y_true_runge)
+    plt.plot(x_dense_runge, y_interp_runge)
+    plt.scatter(x_nodes_runge, y_nodes_runge, zorder=5)
+
+    plt.title(f'n = {n}\nMax похибка: {max_error_runge:.2e}')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+# Графік похибки окремо
+
+plt.figure(figsize=(10, 6))
+
+for n in nodes_runge_list:
+    x_nodes_runge = np.linspace(a_runge, b_runge, n)
+    y_nodes_runge = runge_function(x_nodes_runge)
+    F_runge = divided_diff_table(x_nodes_runge, y_nodes_runge)
+
+    y_interp_runge = np.array([newton_poly(xi, x_nodes_runge, F_runge)
+                               for xi in x_dense_runge])
+
+    error_runge = np.abs(y_true_runge - y_interp_runge)
+    plt.plot(x_dense_runge, error_runge, label=f'n = {n}')
+
+plt.title('Похибка інтерполяції (ефект Рунге)')
+plt.xlabel('x')
+plt.ylabel('|f(x) - P_n(x)|')
+plt.legend()
+plt.grid(True)
+plt.show()
+# ============================================
+# Порівняння з методом Лагранжа
+# ============================================
+
+print("\n Порівняння: Метод Ньютона vs Метод Лагранжа")
+
+# Реалізація полінома Лагранжа
+def lagrange_poly(x, x_nodes, y_nodes):
+    n = len(x_nodes)
+    result = 0.0
+    for i in range(n):
+        term = y_nodes[i]
+        for j in range(n):
+            if i != j:
+                term *= (x - x_nodes[j]) / (x_nodes[i] - x_nodes[j])
+        result += term
+    return result
+
+
+# Використаємо ті ж вузли, що й початкові
+x_nodes = x_data
+y_nodes = y_data
+
+x_dense_compare = np.linspace(min(x_nodes), max(x_nodes), 1000)
+
+# Обчислення значень
+y_newton = np.array([newton_poly(xi, x_nodes, F) for xi in x_dense_compare])
+y_lagrange = np.array([lagrange_poly(xi, x_nodes, y_nodes) for xi in x_dense_compare])
+
+# Різниця між методами
+difference = np.abs(y_newton - y_lagrange)
+max_diff = np.max(difference)
+
+print(f"Максимальна різниця між методами: {max_diff:.2e}")
+
+# Графік порівняння
+plt.figure(figsize=(10, 6))
+plt.plot(x_dense_compare, y_newton, label='Ньютон')
+plt.plot(x_dense_compare, y_lagrange, linestyle='--', label='Лагранж')
+plt.scatter(x_nodes, y_nodes, zorder=5)
+
+plt.title('Порівняння методів Ньютона та Лагранжа')
+plt.xlabel('RPS')
+plt.ylabel('CPU (%)')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+# Графік різниці
+plt.figure(figsize=(10, 6))
+plt.plot(x_dense_compare, difference)
+plt.title('Абсолютна різниця між поліномами')
+plt.xlabel('RPS')
+plt.ylabel('|N(x) - L(x)|')
+plt.grid(True)
+plt.show()
