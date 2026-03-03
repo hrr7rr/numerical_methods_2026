@@ -416,7 +416,7 @@ plt.show()
 
 # Графік різниці
 plt.figure(figsize=(10, 6))
-plt.plot(x_dense_git pull origin maincompare, difference)
+plt.plot(x_dense_compare, difference)
 plt.title('Абсолютна різниця між поліномами')
 plt.xlabel('RPS')
 plt.ylabel('|N(x) - L(x)|')
