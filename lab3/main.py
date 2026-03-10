@@ -161,6 +161,69 @@ print(f"Місяць 25: {y_future[0]:.2f}")
 print(f"Місяць 26: {y_future[1]:.2f}")
 print(f"Місяць 27: {y_future[2]:.2f}")
 
+
+# ----------------------------
+# 3. Екстраполяція: прогноз температури
+# ----------------------------
+
+# беремо тільки останні 5 точок (20-24)
+x_last = x[-5:]
+y_last = y[-5:]
+
+plt.figure()
+
+# фактичні дані
+plt.scatter(x_last, y_last, color='blue', label="Останні дані")
+
+# прогноз
+plt.plot(x_future, y_future, 'g--s', label="Прогноз (наступні 3 міс.)")
+
+plt.xlabel("Місяць")
+plt.ylabel("Температура (°C)")
+
+plt.title("3. Екстраполяція: прогноз температури")
+
+plt.legend()
+plt.grid(True)
+
+plt.show()
+
+# ----------------------------
+# 4. Порівняння апроксимацій для різних степенів (m=1..4)
+# ----------------------------
+
+plt.figure(figsize=(10,8))
+
+for m in range(1,5):
+
+    coef = coef_list[m-1]
+
+    # густі точки для гладкої кривої
+    x_dense = np.linspace(min(x), max(x), 200)
+    y_poly = polynomial(x_dense, coef)
+
+    plt.subplot(2,2,m)
+
+    # фактичні дані
+    plt.scatter(x, y, color='blue', label="Фактичні дані")
+
+    # поліном
+    plt.plot(x_dense, y_poly, color='red', label=f"Поліном m={m}")
+
+    plt.title(f"Степінь m={m} (Дисперсія: {variances[m-1]:.2f})")
+    plt.xlabel("Місяць")
+    plt.ylabel("Температура (°C)")
+
+    plt.legend()
+    plt.grid()
+
+plt.suptitle("4. Порівняння апроксимацій для різних степенів (m=1..4)")
+
+plt.tight_layout()
+
+plt.show()
+
+
 # ----------------------------
 # графік апроксимації
 # ----------------------------
