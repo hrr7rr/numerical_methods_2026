@@ -182,4 +182,3 @@ for eps in eps_values:
 
     errors_adapt.append(err)
     calls.append(c)
-
