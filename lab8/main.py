@@ -16,13 +16,13 @@ H = 0.1
 # трансцендентна функція
 
 def f(x):
-    return math.sin(x) - 0.3 * x
+    return np.sin(x) - 0.3 * x  # використовуємо np замість math
 
 def df(x):
-    return math.cos(x) - 0.3
+    return np.cos(x) - 0.3      # використовуємо np замість math
 
 def d2f(x):
-    return -math.sin(x)
+    return -np.sin(x)           # використовуємо np замість math
 
 
 # табуляція
@@ -96,7 +96,7 @@ def chebyshev(x0):
         if abs(dfx) < EPS:
             return x, k
 
-        x_new = x - fx / dfx - (d2f(x) * fx**2) / (2 * dfx**3)
+        x_new = x - fx / dfx - (d2f(x) * fx ** 2) / (2 * dfx ** 3)
 
         if abs(x_new - x) < EPS:
             return x_new, k + 1
@@ -106,7 +106,7 @@ def chebyshev(x0):
     return x, MAX_ITER
 
 
-#хорди
+# хорди
 
 def chord(x0, x1):
     for k in range(MAX_ITER):
@@ -146,14 +146,14 @@ def parabola(x0, x1, x2):
         b = a * h2 + d2
         c = f2
 
-        D = b*b - 4*a*c
+        D = b * b - 4 * a * c
 
         if D < 0:
             return x2, k
 
         D = math.sqrt(D)
 
-        dx = -2*c / (b + D) if abs(b + D) > abs(b - D) else -2*c / (b - D)
+        dx = -2 * c / (b + D) if abs(b + D) > abs(b - D) else -2 * c / (b - D)
 
         x3 = x2 + dx
 
@@ -175,7 +175,7 @@ def inverse_interpolation(x0, x1):
         if abs(f1 - f0) < EPS:
             return x1, k
 
-        x2 = (x0*f1 - x1*f0) / (f1 - f0)
+        x2 = (x0 * f1 - x1 * f0) / (f1 - f0)
 
         if abs(x2 - x1) < EPS:
             return x2, k + 1
@@ -185,12 +185,12 @@ def inverse_interpolation(x0, x1):
     return x1, MAX_ITER
 
 
-#горнер
+# горнер
 
 def horner(coeffs, x):
     r = coeffs[0]
     for c in coeffs[1:]:
-        r = r*x + c
+        r = r * x + c
     return r
 
 
@@ -199,8 +199,8 @@ def horner_derivative(coeffs, x):
     db = 0
 
     for c in coeffs[1:]:
-        db = db*x + b
-        b = b*x + c
+        db = db * x + b
+        b = b * x + c
 
     return db
 
@@ -218,7 +218,7 @@ def poly_newton(coeffs, x0):
         if abs(dfx) < EPS:
             return x, k
 
-        x_new = x - fx/dfx
+        x_new = x - fx / dfx
 
         if abs(x_new - x) < EPS:
             return x_new, k + 1
@@ -233,10 +233,10 @@ def poly_newton(coeffs, x0):
 def synthetic_division(coeffs, root):
     res = [coeffs[0]]
 
-    for i in range(1, len(coeffs)-1):
-        res.append(coeffs[i] + res[-1]*root)
+    for i in range(1, len(coeffs) - 1):
+        res.append(coeffs[i] + res[-1] * root)
 
-    rem = coeffs[-1] + res[-1]*root
+    rem = coeffs[-1] + res[-1] * root
     return res, rem
 
 
@@ -250,11 +250,11 @@ def lina_method(coeffs, root):
 
     a, b, c = reduced
 
-    D = b*b - 4*a*c
+    D = b * b - 4 * a * c
     sqrtD = cmath.sqrt(D)
 
-    x1 = (-b + sqrtD) / (2*a)
-    x2 = (-b - sqrtD) / (2*a)
+    x1 = (-b + sqrtD) / (2 * a)
+    x2 = (-b - sqrtD) / (2 * a)
 
     return x1, x2
 
@@ -274,6 +274,14 @@ def plot(coeffs):
     plt.ylabel("y")
     plt.show()
 
+ # Побудова графіка
+    x_p = np.linspace(-5, 5, 500)
+    plt.figure(figsize=(10, 4))
+    plt.plot(x_p, f(x_p), label='f(x)')
+    plt.axhline(0, color='r', linestyle='--')
+    plt.title("Трансцендентна функція")
+    plt.grid(True)
+    plt.show()
 # головна програма
 
 print("   Табуляція")
@@ -286,10 +294,10 @@ for i in intervals:
 print("\n             Трансцендентні корені")
 
 for i, (a, b) in enumerate(intervals[:2], 1):
-
     x0 = (a + b) / 2
 
     print(f"\nКорінь {i}")
+
 
     print("Ітерація:", simple_iteration(x0))
     print("Ньютон:", newton(x0))
@@ -304,7 +312,6 @@ coeffs = [1, -2, 4, -8]
 plot(coeffs)
 
 root, iters = poly_newton(coeffs, 2)
-
 
 print("\n       Алгебраїчне рівняння")
 
